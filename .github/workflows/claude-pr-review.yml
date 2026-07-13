@@ -1,0 +1,49 @@
+name: Claude PR Review
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Claude Code
+        run: |
+          npm install -g @anthropic-ai/claude-code
+
+      - name: Verify Claude Installation
+        run: |
+          echo "Claude Location:"
+          which claude
+
+          echo ""
+          echo "Claude Version:"
+          claude --version
+
+      - name: Verify API Key
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          if [ -z "$ANTHROPIC_API_KEY" ]; then
+            echo "❌ ANTHROPIC_API_KEY not found."
+            exit 1
+          fi
+
+          echo "✅ ANTHROPIC_API_KEY found."
+
+      - name: Success
+        run: |
+          echo "Claude Code CI setup completed successfully."

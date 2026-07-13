@@ -1,0 +1,35 @@
+{
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "file": {
+        "type": "string"
+      },
+      "line": {
+        "type": "integer"
+      },
+      "severity": {
+        "type": "string",
+        "enum": [
+          "info",
+          "warning",
+          "error"
+        ]
+      },
+      "finding": {
+        "type": "string"
+      },
+      "suggested_fix": {
+        "type": "string"
+      }
+    },
+    "required": [
+      "file",
+      "line",
+      "severity",
+      "finding",
+      "suggested_fix"
+    ]
+  }
+}
