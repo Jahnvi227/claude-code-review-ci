@@ -44,6 +44,8 @@ jobs:
 
           echo "✅ ANTHROPIC_API_KEY found."
 
-      - name: Success
+      - name: Test Claude
+        env:
+         ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
-          echo "Claude Code CI setup completed successfully."
+         claude -p "Say hello from GitHub Actions."
