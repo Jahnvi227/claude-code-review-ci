@@ -2,14 +2,15 @@ name: Claude PR Review
 
 on:
   pull_request:
-  workflow_dispatch:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: write
 
 jobs:
   review:
     runs-on: ubuntu-latest
-
-    permissions:
-      contents: read
 
     steps:
       - name: Checkout Repository
@@ -18,19 +19,13 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
 
       - name: Install Claude Code
-        run: |
-          npm install -g @anthropic-ai/claude-code
+        run: npm install -g @anthropic-ai/claude-code
 
       - name: Verify Claude Installation
         run: |
-          echo "Claude Location:"
-          which claude
-
-          echo ""
-          echo "Claude Version:"
           claude --version
 
       - name: Verify API Key
@@ -38,10 +33,11 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
           if [ -z "$ANTHROPIC_API_KEY" ]; then
-            echo "❌ ANTHROPIC_API_KEY not found."
+            echo "Missing API Key"
             exit 1
           fi
 
+<<<<<<< HEAD
           echo "✅ ANTHROPIC_API_KEY found."
 
       - name: Test Claude
@@ -49,3 +45,29 @@ jobs:
          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
          claude -p "Say hello from GitHub Actions."
+=======
+      - name: Run Claude Review
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          claude -p "Review the files in this repository. Return a short summary of any potential issues." > review.md
+
+      - name: Display Review
+        run: cat review.md
+
+      - name: Post Review Comment
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+
+            const review = fs.readFileSync('review.md', 'utf8');
+
+            github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: `## 🤖 Claude Code Review\n\n${review}`
+            });
+>>>>>>> fb343ca (Add Claude PR review comments)
